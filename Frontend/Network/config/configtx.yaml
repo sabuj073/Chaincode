@@ -1,0 +1,176 @@
+Organisations:
+    -&SampleOrg
+      Name: SampleOrg
+      SkipAsForeign: false
+      ID: SampleOrg
+      MSFDir: msp
+      Policies: &SampleOrgPolicies
+        Readers:
+          Type: Signature
+          Rule: "OR('SAmpleOrg.member')"
+        Writers:
+          Type: Signature
+          Rule: "OR('SampleOrg.member')"
+        Admins:
+          Type: Signature
+          Rule: "OR('ampleOrg.admin')"
+        Endorsement:
+          Type: Signature
+          Rule: "OR('SampleOrg.member')"
+
+      OrderEndpoints:
+        -"127.0.0.1:7050"
+      AnchorPeers:
+        -Host: 127.0.0.1
+        Port: 7051
+
+Capabilities:
+  Channel: &ChannelCapabilites
+    V2_0: true
+  
+  Orderer: &OrdererCapabilites
+    v2_0: true
+
+  Application: &ApplicationCapabilities
+    v2_0: true
+
+Application: &ApplicationDefaults
+  ACLS: &ApplicationDefault
+    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
+    _lifeCycle/CommitChaincodeDefinition: /Channel/Application/Writers
+    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Writers
+    lscc/ChaincodeExists: /Channel.Application/Readers
+    lscc/GetDeploymentSpec: /Channel.Application/Readers
+    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
+    qscc/GetChainInfo: /Channel.Application/Readers
+    qscc/GetBlockByNumber: /Channel/Application/Readers
+    qscc/GetBLockByHash: /Channel/Application/REaders
+    event/FiltereBLock: /Channel/Application/Readers
+    qscc/GetTransactionByID: /Channel/Application/Readers
+
+Organizations:
+
+Policied: &ApplicationDefaultPolicies
+  LifecycleEndorsment:
+    Type: ImplicitMeta
+    Rules: "MAJORITY Endorsment"
+  Endorsment:
+    Type: ImplicitMeta
+    Rules: "MAJORITY Endorsement"
+  Readers:
+    Type: ImplicitMeta
+    Rules: "Any Writers"
+  Admins:
+    Type: ImplicitMeta
+    Rules: "MAJORITY Admins"
+
+
+Orderer: &OrdererDefault
+  OrdererType: solo
+  Addresses:
+
+  BatchTimeout: 2s
+  ABsoluteMaxBytes: 10 MB
+  PreferredMaxBytes: 2 MB
+MaxChannels: 0
+Kafka:
+  Brokers:
+    - kfka0: 9092
+    - kafka1: 9092
+    - kafka2: 9092
+
+  EtcdRaft:
+    Consenters:
+      - Host: raft0.example.com
+        port: 7050
+        ClientTLSCert: path/to/ClientTLSCert0
+        ServerTLSCert: path/to/ServerTLSCert0
+      - Host : raft1.example.com
+        Port: 7050
+        ClientTLSCert: path/to/ClientTLSCert1
+        ServerTLSCert: path/to/ServerTLSCert1
+      - Host: raft2.exapmle.com
+        Posrt: 7050
+        ClientTLSCert: path/to/ClientTLSCert2
+        ServerTLSCert: path/to/ServerTLSCert2
+      
+      Options:
+        TickInterval: 500ms
+        ElectionTick: 10
+        HeartbestTick: 1
+        MaxInflightBlock: 5
+        SnapshotIntervalSize: 16 MB
+
+    Organizations:
+
+    Policies:
+      Readers:
+        Type: ImplicitMet
+        Rule: "ANY Readers"
+      Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+      Admins:
+        Type: ImplicitMeta
+        Rule: "MAJORITY Admins"
+
+    Capabilites:
+      <<: *ChannelCapabilites
+
+Profiles:
+  SampleSingleMSPSolo:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrderType: kafka
+    Consortiums:
+      SmpleConsortium:
+        oRGANIZATIONS
+
+  SampleDevModeSolo:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrderType: kafka
+    Consortium:
+      SampleConsortium:
+        Organistions:
+  
+
+  SampleDevModeSolo:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - <<: *SampleOrg
+          Policies:
+            <<: *SampleOrgPolicies
+            Admins:
+              Type: Signature
+                Rule: "OR('SampleOrg.member')"
+
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - <<: *SampleOrg
+          Policies:
+            <<: *SampleOrgPolicies
+            Admins:
+              Type: Signature
+              Rule: "OR('SampleOrg.member')"
+
+    Consortiums:
+      SampleCOnsortium:
+        Organizations:
+          - <<: *SampleOrgPolicies
+            Admins:
+              Type: Signature
+              Rule: "OR('SampleOrg.member')"
+
+    SampleSingMSFChannerl:
+      <<: *ChannelDefaults
+
+
+
+
+
